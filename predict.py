@@ -5,43 +5,29 @@ import tempfile
 import tensorflow as tf
 import mediapy
 from PIL import Image
-import cog
+from cog import BasePredictor, Input
 
 from eval import interpolator, util
+
+import tensorflow as tf
 
 _UINT8_MAX_F = float(np.iinfo(np.uint8).max)
 
 
-class Predictor(cog.Predictor):
-    def setup(self):
-        import tensorflow as tf
+class Predictor(BasePredictor):
+    def predict(
+        self, 
+        frame1: str = Input(description="frame1"), 
+        frame2: str = Input(description="frame2"), 
+        times_to_interpolate: str = Input(description="times_to_interpolate", default=1)
+        ):
+
         print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
         self.interpolator = interpolator.Interpolator("pretrained_models/film_net/Style/saved_model", None)
 
         # Batched time.
         self.batch_dt = np.full(shape=(1,), fill_value=0.5, dtype=np.float32)
 
-    @cog.input(
-        "frame1",
-        type=Path,
-        help="The first input frame",
-    )
-    @cog.input(
-        "frame2",
-        type=Path,
-        help="The second input frame",
-    )
-    @cog.input(
-        "times_to_interpolate",
-        type=int,
-        default=1,
-        min=1,
-        max=8,
-        help="Controls the number of times the frame interpolator is invoked If set to 1, the output will be the "
-             "sub-frame at t=0.5; when set to > 1, the output will be the interpolation video with "
-             "(2^times_to_interpolate + 1) frames, fps of 30.",
-    )
-    def predict(self, frame1, frame2, times_to_interpolate):
         INPUT_EXT = ['.png', '.jpg', '.jpeg']
         assert os.path.splitext(str(frame1))[-1] in INPUT_EXT and os.path.splitext(str(frame2))[-1] in INPUT_EXT, \
             "Please provide png, jpg or jpeg images."
