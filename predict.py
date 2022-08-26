@@ -6,6 +6,7 @@ import tensorflow as tf
 import mediapy
 from PIL import Image
 from cog import BasePredictor, Input
+from typing import Any
 
 from eval import interpolator, util
 
