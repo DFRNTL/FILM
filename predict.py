@@ -20,7 +20,7 @@ class Predictor(BasePredictor):
         frame1: str = Input(description="frame1"), 
         frame2: str = Input(description="frame2"), 
         times_to_interpolate: str = Input(description="times_to_interpolate", default=1)
-        ):
+        ) -> Any:
 
         print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
         self.interpolator = interpolator.Interpolator("pretrained_models/film_net/Style/saved_model", None)
